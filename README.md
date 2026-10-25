@@ -1,34 +1,39 @@
-# Relictium
-<img src="https://raw.githubusercontent.com/TheMade4/Relictium/refs/heads/master/src/main/resources/assets/relictium/logo.png" width="256">
+# Freshium
 
-![GitHub Stars](https://img.shields.io/github/stars/TheMade4/Relictium?style=flat-square)
-![GitHub Forks](https://img.shields.io/github/forks/TheMade4/Relictium?style=flat-square)
-![Build Status](https://img.shields.io/github/actions/workflow/status/TheMade4/Relictium/build.yml?branch=master&style=flat-square)
+Freshium is [Relictium](https://github.com/TheMade4/Relictium) specialized for
+[RLCraft](https://www.curseforge.com/minecraft/modpacks/rlcraft) 2.10 on
+[Cleanroom](https://github.com/CleanroomMC/Cleanroom). Relictium is a fork of
+[Vintagium](https://github.com/Asek3/sodium-1.12), itself a fork of
+[Sodium](https://github.com/CaffeineMC/sodium), ported to Minecraft 1.12.2 and Forge. It replaces the game's chunk
+renderer for much better performance.
 
-![CurseForge Downloads](https://img.shields.io/curseforge/dt/1181652?logo=curseforge&label=CurseForge)
-![Modrinth Downloads](https://img.shields.io/modrinth/dt/relictium?logo=modrinth&label=Modrinth)
+## What it adds to Relictium
 
+- **Shader support through Oculus.** Relictium leaves out the per vertex data shader packs read: each block's id, the
+  centre of its texture and its tangent. Without them packs like Complementary cannot tell water, leaves or grass from
+  any other block, so water draws flat and nothing waves. Freshium carries Vintagium's layout for that data, and only
+  while a shader pack is active: with shaders off it keeps Relictium's own smaller vertex formats and does no extra work.
+- It shows as "Freshium Renderer" in F3.
 
+Everything else is Relictium 1.2.0. Freshium keeps its mod id, `vintagium`, so mods that look for Vintagium, Oculus
+among them, still find it, and it reads Relictium's existing `config/relictium-options.json`.
 
-Relictium is an unofficial fork of [Vintagium (by Asek3)](https://github.com/Asek3/sodium-1.12), itself an unofficial fork of [CaffeineMC's “Sodium”](https://github.com/CaffeineMC/sodium), ported to Minecraft 1.12.2 and designed to work with Forge Mod Loader. This mod significantly improves the performance of Minecraft 1.12.2 by rewriting the game's rendering engine for smoother and faster gameplay. 🚀
+## Known incompatibilities
 
-## 📢 Disclaimer
-Known incompatibilities:
-- Optifine (Relictium is not and will never be compatible with Optifine)
+From Relictium:
+
+- OptiFine
 - FarPlaneTwo
 - LittleTiles
-- Fluidlogged API (and other mods that use this API, such as Subaquatic)
+- Fluidlogged API (and mods using it, such as Subaquatic)
 - ArchitectureCraft
 
-Due to limited time, feature requests are best made through pull requests. I’ll review them as soon as possible.
+## Credits
 
-## 🌍 Community
-Join our growing community of mod enthusiasts and contributors:
-- [Issues](https://github.com/TheMade4/Relictium/issues) – Report bugs or request features.
-- [Pull Requests](https://github.com/TheMade4/Relictium/pulls) – Submit code improvements.
+Freshium is by [Fresh-glitch](https://github.com/Fresh-glitch). Relictium is by
+[TheMade4](https://github.com/TheMade4), Vintagium by [Asek3](https://github.com/Asek3), with work by NanoLive and
+[embeddedt](https://github.com/embeddedt), and Sodium by [CaffeineMC](https://github.com/CaffeineMC).
 
-## 📜 License
-Relictium is licensed under the LGPLv3 License. See the [LICENSE](LICENSE) file for more information.
+## License
 
----
-Thank you for supporting Relictium! Your contributions and feedback are invaluable in making this mod even better! 💖
+Freshium is licensed under the LGPLv3, like Relictium. See [LICENSE](LICENSE).
