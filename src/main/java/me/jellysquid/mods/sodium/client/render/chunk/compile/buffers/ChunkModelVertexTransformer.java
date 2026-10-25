@@ -20,4 +20,11 @@ public class ChunkModelVertexTransformer extends AbstractVertexTransformer<Model
     public void writeQuad(float x, float y, float z, int color, float u, float v, int light) {
         this.delegate.writeQuad(x + this.offset.x, y + this.offset.y, z + this.offset.z, color, u, v, light);
     }
+
+    @Override
+    public void writeQuadExtended(float x, float y, float z, int color, float u, float v, int light, short entityId,
+                                  float midU, float midV, int tangent) {
+        this.delegate.writeQuadExtended(x + this.offset.x, y + this.offset.y, z + this.offset.z, color, u, v, light,
+                entityId, midU, midV, tangent);
+    }
 }

@@ -12,6 +12,7 @@ import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
+import me.jellysquid.mods.sodium.client.render.chunk.format.ShaderVertexData;
 import me.jellysquid.mods.sodium.client.util.MathUtil;
 import me.jellysquid.mods.sodium.client.util.Norm3b;
 import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
@@ -59,6 +60,9 @@ public class FluidRenderer {
 
     private final BlockColors vanillaBlockColors;
 
+    // The block id shader packs read, for the fluid being rendered
+    private short currentEntityId;
+
     public FluidRenderer(Minecraft client, LightPipelineProvider lighters, BiomeColorBlender biomeColorBlender) {
         int normal = Norm3b.pack(0.0f, 1.0f, 0.0f);
 
@@ -105,6 +109,8 @@ public class FluidRenderer {
     }
 
     public boolean render(IBlockAccess world, IBlockState fluidState, BlockPos pos, ChunkModelBuffers buffers) {
+        this.currentEntityId = ShaderVertexData.getEntityId(fluidState);
+
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
@@ -399,6 +405,16 @@ public class FluidRenderer {
         ModelVertexSink sink = buffers.getSink(facing);
         sink.ensureCapacity(4);
 
+        boolean shaders = ShaderVertexData.isActive();
+        float midU = 0.0f, midV = 0.0f;
+        int tangent = 0;
+
+        if (shaders) {
+            midU = (quad.getTexU(0) + quad.getTexU(1) + quad.getTexU(2) + quad.getTexU(3)) * 0.25f;
+            midV = (quad.getTexV(0) + quad.getTexV(1) + quad.getTexV(2) + quad.getTexV(3)) * 0.25f;
+            tangent = ShaderVertexData.computeTangent(toEnumFacing(facing));
+        }
+
         for (int i = 0; i < 4; i++) {
             float x = quad.getX(i);
             float y = quad.getY(i);
@@ -411,7 +427,11 @@ public class FluidRenderer {
 
             int light = this.quadLightData.lm[vertexIdx];
 
-            sink.writeQuad(x, y, z, color, u, v, light);
+            if (shaders) {
+                sink.writeQuadExtended(x, y, z, color, u, v, light, this.currentEntityId, midU, midV, tangent);
+            } else {
+                sink.writeQuad(x, y, z, color, u, v, light);
+            }
 
             vertexIdx += lightOrder;
         }
@@ -423,6 +443,17 @@ public class FluidRenderer {
         }
 
         sink.flush();
+    }
+
+    private static EnumFacing toEnumFacing(ModelQuadFacing facing) {
+        switch (facing) {
+            case DOWN: return EnumFacing.DOWN;
+            case NORTH: return EnumFacing.NORTH;
+            case SOUTH: return EnumFacing.SOUTH;
+            case EAST: return EnumFacing.EAST;
+            case WEST: return EnumFacing.WEST;
+            default: return EnumFacing.UP;
+        }
     }
 
     private void setVertex(ModelQuadViewMutable quad, int i, float x, float y, float z, float u, float v) {

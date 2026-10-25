@@ -4,17 +4,33 @@ import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterUnsafe;
-import me.jellysquid.mods.sodium.client.render.chunk.format.DefaultModelVertexFormats;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
 
 public class SFPModelVertexBufferWriterUnsafe extends VertexBufferWriterUnsafe implements ModelVertexSink {
-    public SFPModelVertexBufferWriterUnsafe(VertexBufferView backingBuffer) {
-        super(backingBuffer, DefaultModelVertexFormats.MODEL_VERTEX_SFP);
+    private final boolean extended;
+
+    public SFPModelVertexBufferWriterUnsafe(VertexBufferView backingBuffer, SFPModelVertexType vertexType) {
+        super(backingBuffer, vertexType);
+        this.extended = vertexType.isExtended();
     }
 
     @Override
     public void writeQuad(float x, float y, float z, int color, float u, float v, int light) {
+        this.writeQuadExtended(x, y, z, color, u, v, light, (short) 0, 0.0f, 0.0f, 0);
+    }
+
+    @Override
+    public void writeQuadExtended(float x, float y, float z, int color, float u, float v, int light, short entityId,
+                                  float midU, float midV, int tangent) {
         long i = this.writePointer;
+
+        if (this.extended) {
+            CompatMemoryUtil.memPutShort(i + 28, entityId);
+            CompatMemoryUtil.memPutShort(i + 30, (short) 0);
+            CompatMemoryUtil.memPutFloat(i + 32, midU);
+            CompatMemoryUtil.memPutFloat(i + 36, midV);
+            CompatMemoryUtil.memPutInt(i + 40, tangent);
+        }
 
         CompatMemoryUtil.memPutFloat(i, x);
         CompatMemoryUtil.memPutFloat(i + 4, y);

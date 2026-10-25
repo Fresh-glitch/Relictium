@@ -2,18 +2,36 @@ package me.jellysquid.mods.sodium.client.render.chunk.format.hfp;
 
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterUnsafe;
-import me.jellysquid.mods.sodium.client.render.chunk.format.DefaultModelVertexFormats;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexUtil;
 import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 
 public class HFPModelVertexBufferWriterUnsafe extends VertexBufferWriterUnsafe implements ModelVertexSink {
-    public HFPModelVertexBufferWriterUnsafe(VertexBufferView backingBuffer) {
-        super(backingBuffer, DefaultModelVertexFormats.MODEL_VERTEX_HFP);
+    private final boolean extended;
+
+    public HFPModelVertexBufferWriterUnsafe(VertexBufferView backingBuffer, HFPModelVertexType vertexType) {
+        super(backingBuffer, vertexType);
+        this.extended = vertexType.isExtended();
     }
 
     @Override
     public void writeQuad(float x, float y, float z, int color, float u, float v, int light) {
+        this.writeQuadExtended(x, y, z, color, u, v, light, (short) 0, 0.0f, 0.0f, 0);
+    }
+
+    @Override
+    public void writeQuadExtended(float x, float y, float z, int color, float u, float v, int light, short entityId,
+                                  float midU, float midV, int tangent) {
+        long i = this.writePointer;
+
+        if (this.extended) {
+            CompatMemoryUtil.memPutShort(i + 20, entityId);
+            CompatMemoryUtil.memPutShort(i + 22, (short) 0);
+            CompatMemoryUtil.memPutFloat(i + 24, midU);
+            CompatMemoryUtil.memPutFloat(i + 28, midV);
+            CompatMemoryUtil.memPutInt(i + 32, tangent);
+        }
+
         this.writeQuadInternal(
                 ModelVertexUtil.denormalizeVertexPositionFloatAsShort(x),
                 ModelVertexUtil.denormalizeVertexPositionFloatAsShort(y),

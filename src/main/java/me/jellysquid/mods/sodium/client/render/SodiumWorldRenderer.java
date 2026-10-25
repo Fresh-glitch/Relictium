@@ -14,6 +14,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw.Multidra
 import me.jellysquid.mods.sodium.client.render.chunk.backends.oneshot.ChunkRenderBackendOneshot;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.render.chunk.format.DefaultModelVertexFormats;
+import me.jellysquid.mods.sodium.client.render.chunk.format.ShaderVertexData;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPassManager;
 import me.jellysquid.mods.sodium.client.render.pipeline.context.ChunkRenderCacheShared;
@@ -286,10 +287,13 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
 
         final ChunkVertexType vertexFormat;
 
+        // A shader pack needs the extended formats; Oculus reloads the renderer whenever that changes
+        boolean shaders = ShaderVertexData.refresh();
+
         if (opts.advanced.useCompactVertexFormat) {
-            vertexFormat = DefaultModelVertexFormats.MODEL_VERTEX_HFP;
+            vertexFormat = shaders ? DefaultModelVertexFormats.MODEL_VERTEX_HFP_EXTENDED : DefaultModelVertexFormats.MODEL_VERTEX_HFP;
         } else {
-            vertexFormat = DefaultModelVertexFormats.MODEL_VERTEX_SFP;
+            vertexFormat = shaders ? DefaultModelVertexFormats.MODEL_VERTEX_SFP_EXTENDED : DefaultModelVertexFormats.MODEL_VERTEX_SFP;
         }
 
         this.chunkRenderBackend = createChunkRenderBackend(device, opts, vertexFormat);

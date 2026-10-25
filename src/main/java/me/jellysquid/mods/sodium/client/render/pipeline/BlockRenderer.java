@@ -11,6 +11,7 @@ import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadOrientati
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
+import me.jellysquid.mods.sodium.client.render.chunk.format.ShaderVertexData;
 import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
 import me.jellysquid.mods.sodium.client.util.rand.XoRoShiRoRandom;
 import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
@@ -135,6 +136,18 @@ public class BlockRenderer {
             colors = this.biomeColorBlender.getColors(colorProvider, world, state, pos, src);
         }
 
+        boolean shaders = ShaderVertexData.isActive();
+        short entityId = 0;
+        float midU = 0.0f, midV = 0.0f;
+        int tangent = 0;
+
+        if (shaders) {
+            entityId = ShaderVertexData.getEntityId(state);
+            midU = (src.getTexU(0) + src.getTexU(1) + src.getTexU(2) + src.getTexU(3)) * 0.25f;
+            midV = (src.getTexV(0) + src.getTexV(1) + src.getTexV(2) + src.getTexV(3)) * 0.25f;
+            tangent = ShaderVertexData.computeTangent(bakedQuad.getFace());
+        }
+
         for (int dstIndex = 0; dstIndex < 4; dstIndex++) {
             int srcIndex = order.getVertexIndex(dstIndex);
 
@@ -149,7 +162,11 @@ public class BlockRenderer {
 
             int lm = light.lm[srcIndex];
 
-            sink.writeQuad(x, y, z, color, u, v, lm);
+            if (shaders) {
+                sink.writeQuadExtended(x, y, z, color, u, v, lm, entityId, midU, midV, tangent);
+            } else {
+                sink.writeQuad(x, y, z, color, u, v, lm);
+            }
         }
 
         TextureAtlasSprite sprite = src.rubidium$getSprite();

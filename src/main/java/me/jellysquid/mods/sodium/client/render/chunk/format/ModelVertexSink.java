@@ -14,4 +14,13 @@ public interface ModelVertexSink extends VertexSink {
      * @param light The packed light-map coordinates of the vertex
      */
     void writeQuad(float x, float y, float z, int color, float u, float v, int light);
+
+    /**
+     * Writes a quad vertex with the extra data shader packs read: the block id, the centre of the quad's texture and
+     * its tangent. Sinks of a format without those attributes write the plain vertex.
+     */
+    default void writeQuadExtended(float x, float y, float z, int color, float u, float v, int light, short entityId,
+                                   float midU, float midV, int tangent) {
+        this.writeQuad(x, y, z, color, u, v, light);
+    }
 }

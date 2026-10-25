@@ -21,11 +21,35 @@ public class HFPModelVertexType implements ChunkVertexType {
 	        .addElement(ChunkMeshAttribute.COLOR, 8, GlVertexAttributeFormat.UNSIGNED_BYTE, 4, true)
 	        .addElement(ChunkMeshAttribute.TEXTURE, 12, GlVertexAttributeFormat.UNSIGNED_SHORT, 2, false)
 	        .addElement(ChunkMeshAttribute.LIGHT, 16, GlVertexAttributeFormat.UNSIGNED_SHORT, 2, true)
+	        .optional(ChunkMeshAttribute.ENTITY_DATA, ChunkMeshAttribute.MID_TEX_COORD, ChunkMeshAttribute.TANGENT)
 	        .build();
-            
+
+    /**
+     * The same vertex plus the data shader packs read, in the layout Vintagium uses for Oculus.
+     */
+    public static final GlVertexFormat<ChunkMeshAttribute> VERTEX_FORMAT_EXTENDED =
+			GlVertexFormat.builder(ChunkMeshAttribute.class, 36)
+	        .addElement(ChunkMeshAttribute.POSITION, 0, GlVertexAttributeFormat.UNSIGNED_SHORT, 3, false)
+	        .addElement(ChunkMeshAttribute.COLOR, 8, GlVertexAttributeFormat.UNSIGNED_BYTE, 4, true)
+	        .addElement(ChunkMeshAttribute.TEXTURE, 12, GlVertexAttributeFormat.UNSIGNED_SHORT, 2, false)
+	        .addElement(ChunkMeshAttribute.LIGHT, 16, GlVertexAttributeFormat.UNSIGNED_SHORT, 2, true)
+	        .addElement(ChunkMeshAttribute.ENTITY_DATA, 20, GlVertexAttributeFormat.SHORT, 2, false)
+	        .addElement(ChunkMeshAttribute.MID_TEX_COORD, 24, GlVertexAttributeFormat.FLOAT, 2, false)
+	        .addElement(ChunkMeshAttribute.TANGENT, 32, GlVertexAttributeFormat.BYTE, 4, true)
+	        .build();
 
     public static final float MODEL_SCALE = (32.0f / 65536.0f);
     public static final float TEXTURE_SCALE = (1.0f / 32768.0f);
+
+    private final boolean extended;
+
+    public HFPModelVertexType(boolean extended) {
+        this.extended = extended;
+    }
+
+    public boolean isExtended() {
+        return this.extended;
+    }
 
     @Override
     public ModelVertexSink createFallbackWriter(BufferBuilder consumer) {
@@ -34,7 +58,7 @@ public class HFPModelVertexType implements ChunkVertexType {
 
     @Override
     public ModelVertexSink createBufferWriter(VertexBufferView buffer, boolean direct) {
-        return direct ? new HFPModelVertexBufferWriterUnsafe(buffer) : new HFPModelVertexBufferWriterNio(buffer);
+        return direct ? new HFPModelVertexBufferWriterUnsafe(buffer, this) : new HFPModelVertexBufferWriterNio(buffer, this);
     }
 
     @Override
@@ -44,7 +68,7 @@ public class HFPModelVertexType implements ChunkVertexType {
 
     @Override
     public GlVertexFormat<ChunkMeshAttribute> getCustomVertexFormat() {
-        return VERTEX_FORMAT;
+        return this.extended ? VERTEX_FORMAT_EXTENDED : VERTEX_FORMAT;
     }
 
     @Override

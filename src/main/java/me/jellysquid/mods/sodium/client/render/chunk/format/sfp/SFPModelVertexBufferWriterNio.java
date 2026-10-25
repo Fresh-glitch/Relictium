@@ -2,21 +2,38 @@ package me.jellysquid.mods.sodium.client.render.chunk.format.sfp;
 
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterNio;
-import me.jellysquid.mods.sodium.client.render.chunk.format.DefaultModelVertexFormats;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
 
 import java.nio.ByteBuffer;
 
 public class SFPModelVertexBufferWriterNio extends VertexBufferWriterNio implements ModelVertexSink {
-    public SFPModelVertexBufferWriterNio(VertexBufferView backingBuffer) {
-        super(backingBuffer, DefaultModelVertexFormats.MODEL_VERTEX_SFP);
+    private final boolean extended;
+
+    public SFPModelVertexBufferWriterNio(VertexBufferView backingBuffer, SFPModelVertexType vertexType) {
+        super(backingBuffer, vertexType);
+        this.extended = vertexType.isExtended();
     }
 
     @Override
     public void writeQuad(float x, float y, float z, int color, float u, float v, int light) {
+        this.writeQuadExtended(x, y, z, color, u, v, light, (short) 0, 0.0f, 0.0f, 0);
+    }
+
+    @Override
+    public void writeQuadExtended(float x, float y, float z, int color, float u, float v, int light, short entityId,
+                                  float midU, float midV, int tangent) {
         int i = this.writeOffset;
 
         ByteBuffer buffer = this.byteBuffer;
+
+        if (this.extended) {
+            buffer.putShort(i + 28, entityId);
+            buffer.putShort(i + 30, (short) 0);
+            buffer.putFloat(i + 32, midU);
+            buffer.putFloat(i + 36, midV);
+            buffer.putInt(i + 40, tangent);
+        }
+
         buffer.putFloat(i, x);
         buffer.putFloat(i + 4, y);
         buffer.putFloat(i + 8, z);

@@ -178,16 +178,7 @@ public class MultidrawChunkRenderBackend extends ChunkRenderShaderBackend<Multid
 
     private GlTessellation createRegionTessellation(CommandList commandList, GlBuffer buffer) {
         return commandList.createTessellation(GlPrimitiveType.QUADS, new TessellationBinding[] {
-                new TessellationBinding(buffer, new GlVertexAttributeBinding[] {
-                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.POSITION,
-                                this.vertexFormat.getAttribute(ChunkMeshAttribute.POSITION)),
-                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.COLOR,
-                                this.vertexFormat.getAttribute(ChunkMeshAttribute.COLOR)),
-                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.TEX_COORD,
-                                this.vertexFormat.getAttribute(ChunkMeshAttribute.TEXTURE)),
-                        new GlVertexAttributeBinding(ChunkShaderBindingPoints.LIGHT_COORD,
-                                this.vertexFormat.getAttribute(ChunkMeshAttribute.LIGHT))
-                }, false),
+                new TessellationBinding(buffer, ChunkShaderBindingPoints.createChunkBindings(this.vertexFormat), false),
                 new TessellationBinding(this.uniformBuffer, new GlVertexAttributeBinding[] {
                         new GlVertexAttributeBinding(ChunkShaderBindingPoints.MODEL_OFFSET,
                                 new GlVertexAttribute(GlVertexAttributeFormat.FLOAT, 4, false, 0, 0))

@@ -1,6 +1,8 @@
 package me.jellysquid.mods.sodium.client.gl.attribute;
 
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 
 /**
  * Provides a generic vertex format which contains the attributes defined by {@param T}. Other code can then retrieve
@@ -40,6 +42,10 @@ public class GlVertexFormat<T extends Enum<T>> implements BufferVertexFormat {
         return attr;
     }
 
+    public boolean hasAttribute(T name) {
+        return this.attributesKeyed.containsKey(name);
+    }
+
     /**
      * @return The stride (or the size of) the vertex format in bytes
      */
@@ -61,11 +67,22 @@ public class GlVertexFormat<T extends Enum<T>> implements BufferVertexFormat {
         private final EnumMap<T, GlVertexAttribute> attributes;
         private final Class<T> type;
         private final int stride;
+        private final EnumSet<T> optional;
 
         public Builder(Class<T> type, int stride) {
             this.type = type;
             this.attributes = new EnumMap<>(type);
             this.stride = stride;
+            this.optional = EnumSet.noneOf(type);
+        }
+
+        /**
+         * Lets the format leave out the given attributes, for formats that only carry them in some configurations.
+         */
+        @SafeVarargs
+        public final Builder<T> optional(T... types) {
+            Collections.addAll(this.optional, types);
+            return this;
         }
 
         public Builder<T> addElement(T type, int pointer, GlVertexAttributeFormat format, int count, boolean normalized) {
@@ -105,6 +122,10 @@ public class GlVertexFormat<T extends Enum<T>> implements BufferVertexFormat {
                 GlVertexAttribute attribute = this.attributes.get(key);
 
                 if (attribute == null) {
+                    if (this.optional.contains(key)) {
+                        continue;
+                    }
+
                     throw new NullPointerException("Generic attribute not assigned to enumeration " + key.name());
                 }
 
