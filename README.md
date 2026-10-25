@@ -11,8 +11,10 @@ renderer for much better performance.
 
 - **Shader support through Oculus.** Relictium leaves out the per vertex data shader packs read: each block's id, the
   centre of its texture and its tangent. Without them packs like Complementary cannot tell water, leaves or grass from
-  any other block, so water draws flat and nothing waves. Freshium carries Vintagium's layout for that data, and only
-  while a shader pack is active: with shaders off it keeps Relictium's own smaller vertex formats and does no extra work.
+  any other block, so water draws flat and nothing waves. Freshium carries the layout
+  [pixelreyn](https://github.com/pixelreyn)'s Vintagium build uses for that data (it ships with
+  [Oculus for 1.12.2](https://github.com/pixelreyn/Oculus-1.12.2)), and only while a shader pack is active: with
+  shaders off it keeps Relictium's own smaller vertex formats and does no extra work.
 - It shows as "Freshium Renderer" in F3.
 
 Everything else is Relictium 1.2.0. Freshium keeps its mod id, `vintagium`, so mods that look for Vintagium, Oculus
@@ -32,7 +34,8 @@ From Relictium:
 
 Freshium is by [Fresh-glitch](https://github.com/Fresh-glitch). Relictium is by
 [TheMade4](https://github.com/TheMade4), Vintagium by [Asek3](https://github.com/Asek3), with work by NanoLive and
-[embeddedt](https://github.com/embeddedt), and Sodium by [CaffeineMC](https://github.com/CaffeineMC).
+[embeddedt](https://github.com/embeddedt), and Sodium by [CaffeineMC](https://github.com/CaffeineMC). The shader
+vertex layout is by [pixelreyn](https://github.com/pixelreyn).
 
 ## License
 
